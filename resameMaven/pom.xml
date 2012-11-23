@@ -24,28 +24,33 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-jar-plugin</artifactId>
-  <version>2.3.1</version>
-  <configuration>
-  <archive>
-  <manifest>
-  <mainClass>jonathan.resamemaven.Resame</mainClass>
-  </manifest>
-  </archive>
-  </configuration>
-  </plugin>
-        </plugins>
-    </build>
+			<plugin>
+  				<groupId>org.apache.maven.plugins</groupId>
+  				<artifactId>maven-jar-plugin</artifactId>
+  				<version>2.3.1</version>
+  				<configuration>
+  					<archive>
+  						<manifest>
+  							<mainClass>jonathan.resamemaven.Resame</mainClass>
+  						</manifest>
+  					</archive>
+  				</configuration>
+  			</plugin>
+    	</plugins>
+	</build>
     
     <dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+		</dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>13.0.1</version>
+		</dependency>
+                
 
     </dependencies>
 </project>

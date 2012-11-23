@@ -1,8 +1,12 @@
 package jonathan.resamemaven;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,7 +17,7 @@ import java.util.List;
 public class Jogo implements Cloneable {
 
     private List<List<Integer>> colunas;
-
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -43,7 +47,7 @@ public class Jogo implements Cloneable {
             novoJogo.colunas = novasColunas;
             return novoJogo;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError("Nao deveria chegar aqui.");
+            throw new AssertionError("erro ao clonar jogo");
         }
     }
 
@@ -66,13 +70,14 @@ public class Jogo implements Cloneable {
         return this.colunas.get(index);
     }
 
-    Jogo() {
+    public static Jogo novoJogo(String arquivo) {
+    	return new Jogo(arquivo);
     }
 
-    Jogo(String argumento) {
+    private Jogo(String arquivo) {
         try {
             Integer countColunas;
-            List<String> linhas = retornaLinhas(argumento);
+            List<String> linhas = retornaLinhas(arquivo);
 
             List<List<Integer>> listaColunas = new ArrayList<List<Integer>>();
             for (int i = linhas.size() - 1; i >= 0; i--) {
@@ -111,7 +116,23 @@ public class Jogo implements Cloneable {
         return linhas;
     }
 
-    public void imprimir(Boolean quebrarLinha) {
+    @Override
+    public String toString() {
+    	StringBuilder linha = new StringBuilder();
+        for (int i = this.colunas.get(0).size() - 1; i >= 0; i--) {
+            for (List<Integer> coluna : this.colunas) {
+                if (i <= coluna.size() - 1) {
+                    linha.append(coluna.get(i)).append(" ");
+                }
+            }
+            if (i > 0) {
+                linha.append("\n");
+            }
+        }
+        return linha.toString().trim();
+    }
+    
+    public void imprimir(boolean quebrarLinha) {
         StringBuilder linha = new StringBuilder();
         for (int i = this.colunas.get(0).size() - 1; i >= 0; i--) {
             for (List<Integer> coluna : this.colunas) {
@@ -135,9 +156,11 @@ public class Jogo implements Cloneable {
         reorganizar();
     }
 
-    public void removerGrupo(List<Posicao> grupo) {
-        removeGrupo(grupo.get(0));
-        reorganizar();
+    public Jogo removerGrupo(Grupo grupo) {
+    	Jogo jogoAlterado = this.clone();
+    	jogoAlterado.removeGrupo(grupo.getPosicoes().get(0));
+    	jogoAlterado.reorganizar();
+    	return jogoAlterado; 
     }
 
     private void removeGrupo(Posicao posicaoInicial) {
@@ -245,7 +268,7 @@ public class Jogo implements Cloneable {
         return vizinhos;
     }
 
-    public Boolean isPosicaoValida(Posicao posicao) {
+    public boolean isPosicaoValida(Posicao posicao) {
         if (posicao == null) {
             return false;
         }
@@ -269,7 +292,7 @@ public class Jogo implements Cloneable {
         return coluna.get(posicao.getLinha());
     }
 
-    public Boolean isResolvido() {
+    public boolean isResolvido() {
         for (List<Integer> coluna : this.getColunas()) {
             for (Integer elemento : coluna) {
                 if (!elemento.equals(0)) {
@@ -280,42 +303,37 @@ public class Jogo implements Cloneable {
         return true;
     }
 
-    public List<Posicao> getGrupo(Posicao posicaoInicial) {
-        return pega(posicaoInicial, null);
+    public Grupo getGrupo(Posicao posicaoInicial) {
+        return montarGrupo(posicaoInicial, null);
     }
 
-    private List<Posicao> pega(Posicao posicaoInicial, List<Posicao> grupo) {
+    private Grupo montarGrupo(Posicao posicaoInicial, Grupo grupo) {
         if (grupo == null) {
-            grupo = new ArrayList<Posicao>();
+            grupo = Grupo.novoGrupoVazio();
         }
         Integer corInicial = getCor(posicaoInicial);
         if (corInicial.equals(0)) {
             return grupo;
         }
-        if (!grupo.contains(posicaoInicial)) {
-            grupo.add(posicaoInicial);
+        if (!grupo.getPosicoes().contains(posicaoInicial)) {
+            grupo.addPosicao(posicaoInicial);
         } else {
             return grupo;
         }
         List<Posicao> vizinhos = getVizinhos(posicaoInicial);
         for (Posicao posicao : vizinhos) {
             if (getCor(posicao).equals(corInicial)) {
-                grupo.addAll(pega(posicao, grupo));
+                grupo.addPosicoes(montarGrupo(posicao, grupo).getPosicoes());
             }
         }
-        //remover repetidos
-        HashSet hs = new HashSet();
-        hs.addAll(grupo);
-        grupo.clear();
-        grupo.addAll(hs);
-        return grupo;
+        return grupo.removerRepetidos();
     }
 
-    public List<List<Posicao>> getTodosGrupos() {
-        List<List<Posicao>> todosGrupos = new ArrayList<List<Posicao>>();
+    public List<Grupo> getTodosGrupos() {
+        List<Grupo> todosGrupos = new ArrayList<Grupo>();
         List<Posicao> posicoes = getTodasPosicoes();
         for (Posicao posicao : posicoes) {
-            List<Posicao> grupo = getGrupo(posicao);
+            Grupo grupo = getGrupo(posicao);
             if (!todosGrupos.contains(grupo)) {
                 todosGrupos.add(grupo);
             }
@@ -323,12 +341,12 @@ public class Jogo implements Cloneable {
         return todosGrupos;
     }
 
-    public List<List<Posicao>> getTodosGruposRemoviveis() {
-        List<List<Posicao>> grupos = getTodosGrupos();
-        Iterator<List<Posicao>> it = grupos.iterator();
+    public List<Grupo> getTodosGruposRemoviveis() {
+        List<Grupo> grupos = getTodosGrupos();
+        Iterator<Grupo> it = grupos.iterator();
         while (it.hasNext()) {
-            List<Posicao> grupo = it.next();
-            if (grupo.size() <= 1) {
+            Grupo grupo = it.next();
+            if (grupo.getPosicoes().size() <= 1) {
                 it.remove();
             }
         }

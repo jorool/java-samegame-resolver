@@ -2,6 +2,9 @@ package jonathan.resamemaven;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
+import org.junit.Test;
+
 import junit.framework.TestCase;
 
 /**
@@ -31,9 +34,7 @@ public class PosicaoTest extends TestCase {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
     
-    /**
-     * Test of imprimir method, of class Posicao.
-     */
+    @Test
     public void testImprimir() {
         Boolean quebrarLinha = false;
         Posicao instance = new Posicao(0, 0);
@@ -46,20 +47,15 @@ public class PosicaoTest extends TestCase {
         assertEquals("2 1", outContent.toString().trim());
     }
 
-    /**
-     * Test of toString method, of class Posicao.
-     */
+    @Test
     public void testToString() {
-        System.out.println("toString");
         Posicao instance = new Posicao(1, 2);
-        String expResult = "(1,2)";
+        String expResult = "1 2";
         String result = instance.toString();
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of equals method, of class Posicao.
-     */
+    @Test
     public void testEquals() {
         System.out.println("equals");
         Object obj = new Posicao(1, 1);
@@ -75,11 +71,8 @@ public class PosicaoTest extends TestCase {
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of hashCode method, of class Posicao.
-     */
+    @Test
     public void testHashCode() {
-        System.out.println("hashCode");
         Posicao instance = new Posicao(5, 2);
         int expResult = 24664;
         int result = instance.hashCode();
@@ -91,44 +84,32 @@ public class PosicaoTest extends TestCase {
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of getColuna method, of class Posicao.
-     */
+    @Test
     public void testGetColuna() {
-        System.out.println("getColuna");
         Posicao instance = new Posicao(0, 5);
         Integer expResult = 5;
         Integer result = instance.getColuna();
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of setColuna method, of class Posicao.
-     */
+    @Test
     public void testSetColuna() {
-        System.out.println("setColuna");
         Integer coluna = 2;
         Posicao instance = new Posicao(0, 0);
         instance.setColuna(coluna);
         assertEquals(instance.getColuna(), coluna);
     }
 
-    /**
-     * Test of getLinha method, of class Posicao.
-     */
+    @Test
     public void testGetLinha() {
-        System.out.println("getLinha");
         Posicao instance = new Posicao(0, 0);
         Integer expResult = 0;
         Integer result = instance.getLinha();
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of setLinha method, of class Posicao.
-     */
+    @Test
     public void testSetLinha() {
-        System.out.println("setLinha");
         Integer linha = 2;
         Posicao instance = new Posicao(5, 4);
         instance.setLinha(linha);
